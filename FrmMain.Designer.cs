@@ -64,7 +64,7 @@ namespace ArmourySystem
             // btnLogin
             // 
             this.btnLogin.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnLogin.Location = new System.Drawing.Point(12, 12);
+            this.btnLogin.Location = new System.Drawing.Point(12, 58);
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(100, 40);
             this.btnLogin.TabIndex = 1;
@@ -227,10 +227,10 @@ namespace ArmourySystem
             // 
             // btnFind
             // 
-            this.btnFind.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnFind.Location = new System.Drawing.Point(12, 104);
+            this.btnFind.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnFind.Location = new System.Drawing.Point(631, 426);
             this.btnFind.Name = "btnFind";
-            this.btnFind.Size = new System.Drawing.Size(100, 40);
+            this.btnFind.Size = new System.Drawing.Size(97, 29);
             this.btnFind.TabIndex = 18;
             this.btnFind.Text = "Find";
             this.btnFind.Click += new System.EventHandler(this.BtnFind_Click);
@@ -238,7 +238,7 @@ namespace ArmourySystem
             // txtSearch
             // 
             this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSearch.Location = new System.Drawing.Point(508, 427);
+            this.txtSearch.Location = new System.Drawing.Point(405, 431);
             this.txtSearch.Name = "txtSearch";
             this.txtSearch.Size = new System.Drawing.Size(220, 20);
             this.txtSearch.TabIndex = 20;
@@ -248,16 +248,16 @@ namespace ArmourySystem
             // 
             this.lblFindText.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.lblFindText.AutoSize = true;
-            this.lblFindText.Location = new System.Drawing.Point(472, 430);
+            this.lblFindText.Location = new System.Drawing.Point(325, 434);
             this.lblFindText.Name = "lblFindText";
-            this.lblFindText.Size = new System.Drawing.Size(30, 13);
+            this.lblFindText.Size = new System.Drawing.Size(74, 13);
             this.lblFindText.TabIndex = 21;
-            this.lblFindText.Text = "Find:";
+            this.lblFindText.Text = "Search String:";
             // 
             // btnReports
             // 
             this.btnReports.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnReports.Location = new System.Drawing.Point(12, 58);
+            this.btnReports.Location = new System.Drawing.Point(12, 104);
             this.btnReports.Name = "btnReports";
             this.btnReports.Size = new System.Drawing.Size(100, 40);
             this.btnReports.TabIndex = 22;
@@ -309,10 +309,10 @@ namespace ArmourySystem
             this.btnPrint.Location = new Point(btnLeft, btnExit.Top - (btnSpacing * 2) - btnHeight);
 
             this.btnPrintPreview.Size = new System.Drawing.Size(btnWidth, btnHeight);
-            this.btnPrintPreview.Location = new Point(btnLeft, btnPrint.Top - (btnSpacing * 2) - btnHeight);
+            this.btnPrintPreview.Location = new Point(btnLeft, btnPrint.Top - btnSpacing - btnHeight);
 
             this.btnSaveData.Size = new System.Drawing.Size(btnWidth, btnHeight);
-            this.btnSaveData.Location = new Point(btnLeft, btnPrintPreview.Top - (btnSpacing) - btnHeight);
+            this.btnSaveData.Location = new Point(btnLeft, btnPrintPreview.Top - btnSpacing - btnHeight);
 
             this.btnLoadData.Size = new System.Drawing.Size(btnWidth, btnHeight);
             this.btnLoadData.Location = new Point(btnLeft, btnSaveData.Top - btnSpacing - btnHeight);
@@ -320,11 +320,8 @@ namespace ArmourySystem
             this.btnAddUser.Size = new System.Drawing.Size(btnWidth, btnHeight);
             this.btnAddUser.Location = new Point(btnLeft, btnLoadData.Top - btnSpacing - btnHeight);
 
-            this.btnFind.Size = new System.Drawing.Size(btnWidth, btnHeight);
-            this.btnFind.Location = new Point(btnLeft, btnAddUser.Top - btnSpacing - btnHeight);
-
             this.btnReports.Size = new System.Drawing.Size(btnWidth, btnHeight);
-            this.btnReports.Location = new Point(btnLeft, btnFind.Top - btnSpacing - btnHeight);
+            this.btnReports.Location = new Point(btnLeft, btnAddUser.Top - btnSpacing - btnHeight);
 
             this.btnLogin.Size = new System.Drawing.Size(btnWidth, btnHeight);
             this.btnLogin.Location = new Point(btnLeft, btnReports.Top - btnSpacing - btnHeight);
