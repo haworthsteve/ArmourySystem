@@ -252,7 +252,20 @@ namespace ArmourySystem
         {
             try
             {
-                DataView currentView = (DataView)dataGridView.DataSource;
+                DataView currentView;
+                if (dataGridView.DataSource is DataTable dataTable)
+                {
+                    currentView = dataTable.DefaultView;
+                }
+                else if (dataGridView.DataSource is DataView dataView)
+                {
+                    currentView = dataView;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unsupported data source type.");
+                }
+                //DataView currentView = (DataView)dataGridView.DataSource;
                 DataTable filteredTable = currentView.ToTable();
                 PrintHelper printForm = new PrintHelper(filteredTable);
                 printForm.Print_Pages();
