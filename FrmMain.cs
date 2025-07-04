@@ -97,13 +97,13 @@ namespace ArmourySystem
                     if (isAdmin == true)
                     {
                         this.btnAddUser.Enabled = true; // Enable Add User button
-                        this.btnSaveData.Enabled = true; // Enable Save Data button
                     }
 
                     this.Text = this.Text + " >> Logged in as: " + storedUser.Username + "  role: " + storedUser.Role.ToUpper();
                     this.btnLogin.Visible = false;
 
                     this.btnLoadData.Enabled = true; // Enable Load Data button
+                    this.btnSaveData.Enabled = true; // Enable Save Data button
                     this.btnPrintPreview.Enabled = true; // Enable Print Preview button
                     this.btnPrint.Enabled = true; // Enable Print button
                     this.btnFind.Enabled = true; // Enable Find button
@@ -174,6 +174,8 @@ namespace ArmourySystem
                     dataGridView.Columns["Sight Serial No"].ReadOnly = true;
                 }
 
+                dataGridView.Columns["Signature"].ReadOnly = true;
+
                 dataGridView.Columns["Type"].Frozen = true;
                 dataGridView.Columns["Group"].Frozen = true;
                 dataGridView.Columns["Op"].Frozen = true;
@@ -207,6 +209,8 @@ namespace ArmourySystem
 
         private void BtnExit_Click(object sender, EventArgs e)
         {
+            dataGridView.EndEdit(); // Ensure any edits are committed before closing
+
             if (dataChanged)
             {
                 DialogResult result = MessageBox.Show("You have unsaved changes. Do you want to save before exiting?",
@@ -238,6 +242,7 @@ namespace ArmourySystem
             {
                 // Method to add the weapon data to the excel workbook
                 ExcelWeaponStore.SaveExcelWeaponData(excelTable);
+                excelTable.AcceptChanges();  // Resets DataRow state to unchanged
                 dataChanged = false; // Reset the data changed flag after saving
             }
             catch (Exception ex)
@@ -338,12 +343,7 @@ namespace ArmourySystem
         {
             if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
             {
-                // Check if the cell value has changed
-                if (dataGridView.IsCurrentCellDirty)
-                {
-                    dataChanged = true; // Set flag to indicate data has changed
-                    dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit); // Commit the edit
-                }
+                dataChanged = true; // Set flag to indicate data has changed
             }
         }
 
@@ -422,5 +422,18 @@ namespace ArmourySystem
 
         }
 
+        private void dataGridView_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            // Commit the edit if the current cell is dirty, makes the data update immediately to catch changes
+            if (dataGridView.IsCurrentCellDirty)
+            {
+                dataGridView.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
+
+        private void dataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
+        {
+            dataChanged = true; // Set flag to indicate data has changed
+        }
     }
 }
