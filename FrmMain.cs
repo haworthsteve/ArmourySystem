@@ -20,7 +20,8 @@ namespace ArmourySystem
         {
             InitializeComponent();
             LoadFormSettings();
-            
+
+            this.AcceptButton = null; // Disables accept button functionality
             this.btnAddUser.Enabled = false; // Disable Add User button initially
             this.btnLoadData.Enabled = false; // Disable button initially
             this.btnSaveData.Enabled = false; // Disable button initially
@@ -425,11 +426,13 @@ namespace ArmourySystem
         {
             try
             {
-                string searchText = txtSearch.Text; //.Trim();
+                string searchText = txtSearch.Text.Trim(); //.Trim();
 
                 if (string.IsNullOrEmpty(searchText))
                 {
                     MessageBox.Show("Please enter search text in the Find box below", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    txtSearch.Text = "";
+                    txtSearch.Focus();
                     return;
                 }
 
@@ -465,34 +468,27 @@ namespace ArmourySystem
             }
         }
 
-        private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Check if the Enter key is pressed
-            if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true; // Prevent beep
-                e.Handled = true;
-
-                // Then show the dialog
-                BtnFind_Click(sender, e); // Trigger search on Enter key
-            }
-        }
-
         private void BtnReports_Click(object sender, EventArgs e)
         {
             FrmReports reportsForm = new FrmReports();
             reportsForm.ShowDialog();
         }
 
-        private void FrmMain_KeyDown(object sender, KeyEventArgs e)
+        private void TxtSearch_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter && txtSearch.Focused)
+            // Check if the Enter key is pressed
+            if (e.KeyChar == (char)13)
             {
-                e.SuppressKeyPress = true;
-                e.Handled = true;
+                e.Handled = true; // Prevent beep
 
-                BtnFind_Click(null, null); 
+                // Then show the dialog
+                if (!string.IsNullOrWhiteSpace(txtSearch.Text))
+                {
+                    BtnFind_Click(sender, e); // Trigger search on Enter key
+                }
             }
+
         }
+
     }
 }

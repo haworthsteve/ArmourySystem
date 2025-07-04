@@ -76,7 +76,7 @@ namespace ArmourySystem
                 preview.Height = 800;
                 DisablePrintButton(preview); // disable print button in preview 
 
-                preview.ShowDialog();  // user can choose to print from toolbar
+                preview.ShowDialog();  // user cannot choose to print from toolbar as it's disabled
             }
         }
 
