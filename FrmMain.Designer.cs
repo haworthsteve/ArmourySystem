@@ -74,7 +74,7 @@ namespace ArmourySystem
             // btnAddUser
             // 
             this.btnAddUser.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnAddUser.Location = new System.Drawing.Point(12, 150);
+            this.btnAddUser.Location = new System.Drawing.Point(12, 104);
             this.btnAddUser.Name = "btnAddUser";
             this.btnAddUser.Size = new System.Drawing.Size(100, 40);
             this.btnAddUser.TabIndex = 2;
@@ -84,7 +84,7 @@ namespace ArmourySystem
             // btnLoadData
             // 
             this.btnLoadData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnLoadData.Location = new System.Drawing.Point(12, 196);
+            this.btnLoadData.Location = new System.Drawing.Point(12, 150);
             this.btnLoadData.Name = "btnLoadData";
             this.btnLoadData.Size = new System.Drawing.Size(100, 40);
             this.btnLoadData.TabIndex = 3;
@@ -117,7 +117,7 @@ namespace ArmourySystem
             // btnSaveData
             // 
             this.btnSaveData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnSaveData.Location = new System.Drawing.Point(12, 242);
+            this.btnSaveData.Location = new System.Drawing.Point(12, 196);
             this.btnSaveData.Name = "btnSaveData";
             this.btnSaveData.Size = new System.Drawing.Size(100, 40);
             this.btnSaveData.TabIndex = 4;
@@ -127,7 +127,7 @@ namespace ArmourySystem
             // btnPrint
             // 
             this.btnPrint.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnPrint.Location = new System.Drawing.Point(12, 334);
+            this.btnPrint.Location = new System.Drawing.Point(12, 288);
             this.btnPrint.Name = "btnPrint";
             this.btnPrint.Size = new System.Drawing.Size(100, 40);
             this.btnPrint.TabIndex = 6;
@@ -218,7 +218,7 @@ namespace ArmourySystem
             // btnPrintPreview
             // 
             this.btnPrintPreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnPrintPreview.Location = new System.Drawing.Point(12, 288);
+            this.btnPrintPreview.Location = new System.Drawing.Point(12, 242);
             this.btnPrintPreview.Name = "btnPrintPreview";
             this.btnPrintPreview.Size = new System.Drawing.Size(100, 40);
             this.btnPrintPreview.TabIndex = 17;
@@ -257,7 +257,7 @@ namespace ArmourySystem
             // btnReports
             // 
             this.btnReports.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnReports.Location = new System.Drawing.Point(12, 104);
+            this.btnReports.Location = new System.Drawing.Point(12, 334);
             this.btnReports.Name = "btnReports";
             this.btnReports.Size = new System.Drawing.Size(100, 40);
             this.btnReports.TabIndex = 22;
@@ -304,8 +304,11 @@ namespace ArmourySystem
             this.btnExit.Size = new System.Drawing.Size(btnWidth, btnHeight);
             this.btnExit.Location = new Point(btnLeft, this.ClientSize.Height - (btnHeight + btnBottomOffset));
 
+            this.btnReports.Size = new System.Drawing.Size(btnWidth, btnHeight);
+            this.btnReports.Location = new Point(btnLeft, btnExit.Top - (btnSpacing * 2) - btnHeight);
+
             this.btnPrint.Size = new System.Drawing.Size(btnWidth, btnHeight);
-            this.btnPrint.Location = new Point(btnLeft, btnExit.Top - (btnSpacing * 2) - btnHeight);
+            this.btnPrint.Location = new Point(btnLeft, btnReports.Top - btnSpacing - btnHeight);
 
             this.btnPrintPreview.Size = new System.Drawing.Size(btnWidth, btnHeight);
             this.btnPrintPreview.Location = new Point(btnLeft, btnPrint.Top - btnSpacing - btnHeight);
@@ -319,11 +322,8 @@ namespace ArmourySystem
             this.btnAddUser.Size = new System.Drawing.Size(btnWidth, btnHeight);
             this.btnAddUser.Location = new Point(btnLeft, btnLoadData.Top - btnSpacing - btnHeight);
 
-            this.btnReports.Size = new System.Drawing.Size(btnWidth, btnHeight);
-            this.btnReports.Location = new Point(btnLeft, btnAddUser.Top - btnSpacing - btnHeight);
-
             this.btnLogin.Size = new System.Drawing.Size(btnWidth, btnHeight);
-            this.btnLogin.Location = new Point(btnLeft, btnReports.Top - btnSpacing - btnHeight);
+            this.btnLogin.Location = new Point(btnLeft, btnAddUser.Top - btnSpacing - btnHeight);
 
             this.MinimumSize = new Size((btnWidth * 2) + (btnLeft * 4), btnBottomOffset + (btnHeight * 6) + (btnSpacing * 6));
         }
