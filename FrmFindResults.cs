@@ -44,6 +44,9 @@ namespace ArmourySystem
             dataGridViewResults.DefaultCellStyle.SelectionBackColor = dataGridViewResults.DefaultCellStyle.BackColor;
             dataGridViewResults.DefaultCellStyle.SelectionForeColor = dataGridViewResults.DefaultCellStyle.ForeColor;
 
+            // Remove the left Hand row headers
+            dataGridViewResults.RowHeadersVisible = false;
+
         }
 
         private void BtnClose_Click(object sender, EventArgs e)

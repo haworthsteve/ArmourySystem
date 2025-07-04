@@ -16,11 +16,14 @@ namespace ArmourySystem
         private bool isAdmin = false; // This should be set based on your validation logic
         private bool dataChanged = false; // Track if data has changed
 
+        private FilterHelper _filterHelper;
+
         public FrmMain()
         {
             InitializeComponent();
             LoadFormSettings();
-            
+
+            this.AcceptButton = null; // Disables accept button functionality
             this.btnAddUser.Enabled = false; // Disable Add User button initially
             this.btnLoadData.Enabled = false; // Disable button initially
             this.btnSaveData.Enabled = false; // Disable button initially
@@ -179,8 +182,19 @@ namespace ArmourySystem
                 dataGridView.Columns["Sight Serial No"].Frozen = true;
                 dataGridView.Columns["Out"].Frozen = true;
 
-                PopulateAllFilters();
-                HookFilterEvents();
+                _filterHelper = new FilterHelper(
+                    excelTable,        // loaded DataTable
+                    dataGridView,      // Main display grid
+                    filters,
+                    filterColumns,
+                    chkOut,            // Optional: In/Out checkbox
+                    txtSearch          // Optional: Find/Search textbox
+                );
+
+
+                _filterHelper.PopulateAllFilters();
+                _filterHelper.HookFilterEvents();
+                _filterHelper.ApplyCombinedFilters();
 
                 dataGridView.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
 
@@ -252,7 +266,20 @@ namespace ArmourySystem
         {
             try
             {
-                DataView currentView = (DataView)dataGridView.DataSource;
+                DataView currentView;
+                if (dataGridView.DataSource is DataTable dataTable)
+                {
+                    currentView = dataTable.DefaultView;
+                }
+                else if (dataGridView.DataSource is DataView dataView)
+                {
+                    currentView = dataView;
+                }
+                else
+                {
+                    throw new InvalidOperationException("Unsupported data source type.");
+                }
+                //DataView currentView = (DataView)dataGridView.DataSource;
                 DataTable filteredTable = currentView.ToTable();
                 PrintHelper printForm = new PrintHelper(filteredTable);
                 printForm.Print_Pages();
@@ -263,98 +290,10 @@ namespace ArmourySystem
             }
         }
 
-        /*
-        // Test new method in seperate class
-        private void PopulateAllFilters()
-        {
-            filterHelper = new FilterHelper(excelTable, filterColumns, filters, chkOut, dataGridView, dataGridViewResults, txtSearch);
-            filterHelper.PopulateAllFilters();
-        }
-
-        // Test new method in seperate class
-        private void ApplyCombinedFilters()
-        {
-            filterHelper.ApplyCombinedFilters();
-        }
-        
-        // Test new method in seperate class
-        private void HookFilterEvents()
-        {
-            filterHelper.HookFilterEvents();
-        }
-        // Test new method in seperate class
-        private void BtnClearAllFilters_Click(object sender, EventArgs e)
-        {
-            filterHelper.ClearAllFilters();
-        }
-
-        */
-        // Old method to populate all filters
-        private void PopulateAllFilters()
-        {
-            for (int i = 0; i < filters.Length; i++)
-            {
-                      string column = filterColumns[i];
-                      var uniqueValues = excelTable.AsEnumerable()
-                          .Select(row => row.Field<string>(column))
-                          .Where(val => !string.IsNullOrEmpty(val))
-                          .Distinct()
-                          .OrderBy(val => val)
-                          .ToList();
-
-                      uniqueValues.Insert(0, "All");
-                      filters[i].DataSource = new BindingSource(uniqueValues, null);
-            }
-        }
-
-        private void ApplyCombinedFilters()
-        {
-            DataView view = new DataView(excelTable);
-            List<string> conditions = new List<string>();
-
-            for (int i = 0; i < filters.Length; i++)
-            {
-                string value = filters[i].SelectedItem?.ToString();
-                string column = filterColumns[i];
-
-                if (!string.IsNullOrEmpty(value) && value != "All")
-                {
-                    string safeValue = value.Replace("'", "''");
-                    conditions.Add($"[{column}] = '{safeValue}'");
-                }
-            }
-
-            // Enabled (CheckBox)
-            if (chkOut.CheckState != CheckState.Indeterminate)
-            {
-                string boolValue = chkOut.CheckState == CheckState.Checked ? "true" : "false";
-                conditions.Add($"[Out] = {boolValue}");
-            }
-
-            view.RowFilter = string.Join(" AND ", conditions);
-            dataGridView.DataSource = view;
-        }
-
-        private void HookFilterEvents()
-        {
-            for (int i = 0; i < filters.Length; i++)
-            {
-                filters[i].SelectedIndexChanged += (s, e) => ApplyCombinedFilters();
-            }
-
-            chkOut.CheckStateChanged += (s, e) => ApplyCombinedFilters();
-        }
 
         private void BtnClearAllFilters_Click(object sender, EventArgs e)
         {
-            for (int i = 0; i < filters.Length; i++)
-            {
-                filters[i].SelectedItem = "All";
-            }
-
-            chkOut.CheckState = CheckState.Indeterminate;
-            ApplyCombinedFilters();
-            txtSearch.Clear(); // Clear search box
+            _filterHelper.ClearAllFilters();
         }
         
 
@@ -412,11 +351,13 @@ namespace ArmourySystem
         {
             try
             {
-                string searchText = txtSearch.Text; //.Trim();
+                string searchText = txtSearch.Text.Trim(); //.Trim();
 
                 if (string.IsNullOrEmpty(searchText))
                 {
                     MessageBox.Show("Please enter search text in the Find box below", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    txtSearch.Text = "";
+                    txtSearch.Focus();
                     return;
                 }
 
@@ -452,34 +393,34 @@ namespace ArmourySystem
             }
         }
 
-        private void TxtSearch_KeyDown(object sender, KeyEventArgs e)
-        {
-            // Check if the Enter key is pressed
-            if (e.KeyCode == Keys.Enter)
-            {
-                e.SuppressKeyPress = true; // Prevent beep
-                e.Handled = true;
-
-                // Then show the dialog
-                BtnFind_Click(sender, e); // Trigger search on Enter key
-            }
-        }
-
         private void BtnReports_Click(object sender, EventArgs e)
         {
-            FrmReports reportsForm = new FrmReports();
-            reportsForm.ShowDialog();
-        }
-
-        private void FrmMain_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.Enter && txtSearch.Focused)
+            try
             {
-                e.SuppressKeyPress = true;
-                e.Handled = true;
-
-                BtnFind_Click(null, null); 
+                FrmReports reportsForm = new FrmReports(excelTable, dataGridView);
+                reportsForm.ShowDialog();
+            }
+            catch
+            {
+                // Do nothing here
             }
         }
+
+        private void TxtSearch_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Check if the Enter key is pressed
+            if (e.KeyChar == (char)13)
+            {
+                e.Handled = true; // Prevent beep
+
+                // Then show the dialog
+                if (!string.IsNullOrWhiteSpace(txtSearch.Text))
+                {
+                    BtnFind_Click(sender, e); // Trigger search on Enter key
+                }
+            }
+
+        }
+
     }
 }

@@ -1,38 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Data;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ArmourySystem
 {
     public class FilterHelper
     {
-        private readonly DataTable _dataTable;
-        private readonly string[] _filterColumns;
-        private readonly ComboBox[] _filters;
-        private readonly CheckBox _chkOut;
+        private readonly DataTable _excelTable;
         private readonly DataGridView _dataGridView;
-        private readonly DataGridView _dataGridViewResults;
+        private readonly ComboBox[] _filters;
+        private readonly string[] _filterColumns;
+        private readonly CheckBox _chkOut;
         private readonly TextBox _txtSearch;
 
         public FilterHelper(
-            DataTable dataTable,
-            string[] filterColumns,
-            ComboBox[] filters,
-            CheckBox chkOut,
-            DataGridView dataGridView,
-            DataGridView dataGridViewResults = null,
-            TextBox txtSearch = null)
+              DataTable excelTable,
+              DataGridView dataGridView,
+              ComboBox[] filters,
+              string[] filterColumns,
+              CheckBox chkOut = null,
+              TextBox txtSearch = null)
         {
-            _dataTable = dataTable;
-            _filterColumns = filterColumns;
-            _filters = filters;
+            _excelTable = excelTable ?? throw new ArgumentNullException(nameof(excelTable));
+            _dataGridView = dataGridView ?? throw new ArgumentNullException(nameof(dataGridView));
+            _filters = filters ?? throw new ArgumentNullException(nameof(filters));
+            _filterColumns = filterColumns ?? throw new ArgumentNullException(nameof(filterColumns));
             _chkOut = chkOut;
-            _dataGridView = dataGridView;
-            _dataGridViewResults = dataGridViewResults;
             _txtSearch = txtSearch;
         }
 
@@ -41,7 +36,7 @@ namespace ArmourySystem
             for (int i = 0; i < _filters.Length; i++)
             {
                 string column = _filterColumns[i];
-                var uniqueValues = _dataTable.AsEnumerable()
+                var uniqueValues = _excelTable.AsEnumerable()
                     .Select(row => row.Field<string>(column))
                     .Where(val => !string.IsNullOrEmpty(val))
                     .Distinct()
@@ -55,7 +50,7 @@ namespace ArmourySystem
 
         public void ApplyCombinedFilters()
         {
-            DataView view = new DataView(_dataTable);
+            DataView view = new DataView(_excelTable);
             List<string> conditions = new List<string>();
 
             for (int i = 0; i < _filters.Length; i++)
@@ -82,32 +77,30 @@ namespace ArmourySystem
 
         public void HookFilterEvents()
         {
-            for (int i = 0; i < _filters.Length; i++)
+            foreach (var filter in _filters)
             {
-                _filters[i].SelectedIndexChanged += (s, e) => ApplyCombinedFilters();
+                filter.SelectedIndexChanged += (s, e) => ApplyCombinedFilters();
             }
 
             if (_chkOut != null)
+            {
                 _chkOut.CheckStateChanged += (s, e) => ApplyCombinedFilters();
+            }
         }
 
         public void ClearAllFilters()
         {
-            for (int i = 0; i < _filters.Length; i++)
+            foreach (var filter in _filters)
             {
-                _filters[i].SelectedItem = "All";
+                filter.SelectedItem = "All";
             }
 
             if (_chkOut != null)
                 _chkOut.CheckState = CheckState.Indeterminate;
 
-            ApplyCombinedFilters();
-
-            if (_dataGridViewResults != null)
-                _dataGridViewResults.Visible = false;
-
             _txtSearch?.Clear();
-        }
 
+            ApplyCombinedFilters();
+        }
     }
 }

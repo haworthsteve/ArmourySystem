@@ -137,6 +137,13 @@ namespace ArmourySystem
                         {
                             var value = table.Rows[row][col];
 
+                            // Handle specific columns
+                            if (table.Columns[col].ColumnName == "Signature")
+                            {
+                                worksheet.Cells[row + 2, col + 1].Value = "XXXXXXXXXXXXXX"; // Set Signature box spreader value
+                                continue;
+                            }
+
                             // Convert bool to string for Excel 
                             if (value is bool b)
                             {
@@ -144,7 +151,16 @@ namespace ArmourySystem
                             }
                             else
                             {
-                                worksheet.Cells[row + 2, col + 1].Value = value?.ToString();
+                                // Handle DBNull values for the "Out" column
+                                if ((table.Columns[col].ColumnName == "Out") && (value is DBNull))
+                                {
+                                    worksheet.Cells[row + 2, col + 1].Value = "FALSE"; // Default to false if DBNull
+                                }
+                                else 
+                                {
+                                    // For other types, just convert to string
+                                    worksheet.Cells[row + 2, col + 1].Value = value?.ToString();
+                                }
                             }
                         }
                     }
