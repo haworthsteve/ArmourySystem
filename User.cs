@@ -1,4 +1,5 @@
 ﻿using System;
+using static ArmourySystem.PackageConstants;
 
 namespace ArmourySystem
 {
@@ -10,7 +11,7 @@ namespace ArmourySystem
         public int FailedAttempts { get; set; }
         public DateTime? LockoutUntil { get; set; }
 
-        private string _role = "User"; // Default role is "User"  
+        private string _role = DefaultRole; // Default role is "User"  
         public string Role
         {
             get => _role;

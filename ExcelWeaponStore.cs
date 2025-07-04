@@ -11,23 +11,19 @@ namespace ArmourySystem
 {
     public static class ExcelWeaponStore
     {
-        private readonly static string FilePath = "weapons.xlsx";
-        private readonly static string SheetName = "Weapons";
-        private readonly static string ExcelPassword = "password";
-        private readonly static bool encrypt = false; // Set to true if you want to encrypt the Excel file
 
         public static bool Initialize()
         {
             ExcelPackage.License.SetNonCommercialOrganization(PackageAuthor);
 
-            if (!File.Exists(FilePath))
+            if (!File.Exists(WeaponFilePath))
             {
-                using (var package = new ExcelPackage(new FileInfo(FilePath)))
+                using (var package = new ExcelPackage(new FileInfo(WeaponFilePath)))
                 {
-                    var sheet = package.Workbook.Worksheets.Add(SheetName);
+                    var sheet = package.Workbook.Worksheets.Add(WeaponSheetName);
 
                     // Set headers for the weapon data
-                    var headers = GetAllHeaderNames();
+                    var headers = GetAllWeaponHeaderNames();
                     for (int i = 0; i < headers.Length; i++)
                     {
                         sheet.Cells[1, i + 1].Value = headers[i];
@@ -39,9 +35,9 @@ namespace ArmourySystem
             }
             else
             {
-                if (!encrypt) // if the file exists but we do not want encryption open it and save it without encryption
+                if (!WeaponEncrypt) // if the file exists but we do not want encryption open it and save it without encryption
                 {
-                    using (var package = new ExcelPackage(new FileInfo(FilePath), ExcelPassword))
+                    using (var package = new ExcelPackage(new FileInfo(WeaponFilePath), WeaponExcelPassword))
                     {
                         SaveEncrypted(package);
                     }
@@ -53,11 +49,11 @@ namespace ArmourySystem
 
         private static void SaveEncrypted(ExcelPackage package)
         {
-            if (encrypt)
+            if (WeaponEncrypt)
             {
                 // Enable AES encryption
                 package.Encryption.IsEncrypted = true;
-                package.Encryption.Password = ExcelPassword;
+                package.Encryption.Password = WeaponExcelPassword;
             }
             else
             {
@@ -66,16 +62,16 @@ namespace ArmourySystem
             }
 
             // Save the package to the file
-            package.SaveAs(new FileInfo(FilePath));
+            package.SaveAs(new FileInfo(WeaponFilePath));
         }
 
         public static DataTable LoadExcelWeaponData()
         {
             var dt = new DataTable();
 
-            using (var package = new ExcelPackage(new FileInfo(FilePath)))
+            using (var package = new ExcelPackage(new FileInfo(WeaponFilePath)))
             {
-                var worksheet = package.Workbook.Worksheets[SheetName];
+                var worksheet = package.Workbook.Worksheets[WeaponSheetName];
                 bool hasHeader = true;
 
                 int colCount = worksheet.Dimension.End.Column;
@@ -85,7 +81,7 @@ namespace ArmourySystem
                 for (int col = 1; col <= colCount; col++)
                 {
                     var colName = hasHeader ? worksheet.Cells[1, col].Text : $"Column{col}";
-                    if ((colName == GetHeaderName(Header.Out)) || (colName == GetHeaderName(Header.PermIssue)))  // comparison using GetHeaderName
+                    if ((colName == GetWeaponName(WeaponHeader.Out)) || (colName == GetWeaponName(WeaponHeader.PermIssue)))  // comparison using GetHeaderName
                         dt.Columns.Add(colName, typeof(bool));
                     else
                         dt.Columns.Add(colName);
@@ -122,7 +118,7 @@ namespace ArmourySystem
             {
                 using (var package = new ExcelPackage())
                 {
-                    var worksheet = package.Workbook.Worksheets.Add(SheetName);
+                    var worksheet = package.Workbook.Worksheets.Add(WeaponSheetName);
 
                     // Write header
                     for (int col = 0; col < table.Columns.Count; col++)
@@ -138,7 +134,7 @@ namespace ArmourySystem
                             var value = table.Rows[row][col];
 
                             // Handle specific columns
-                            if (table.Columns[col].ColumnName == GetHeaderName(Header.Signature))
+                            if (table.Columns[col].ColumnName == GetWeaponName(WeaponHeader.Signature))
                             {
                                 worksheet.Cells[row + 2, col + 1].Value = "XXXXXXXXXXXXXX"; // Set Signature box spreader value
                                 continue;
@@ -147,15 +143,15 @@ namespace ArmourySystem
                             // Convert bool to string for Excel 
                             if (value is bool b)
                             {
-                                worksheet.Cells[row + 2, col + 1].Value = b ? "TRUE" : "FALSE";
+                                worksheet.Cells[row + 2, col + 1].Value = b ? strTrue : strFalse;
                             }
                             else
                             {
                                 // Handle DBNull values for the "Out" column
-                                if (((table.Columns[col].ColumnName == GetHeaderName(Header.Out)) && (value is DBNull)) | 
-                                    ((table.Columns[col].ColumnName == GetHeaderName(Header.PermIssue)) && (value is DBNull)))
+                                if (((table.Columns[col].ColumnName == GetWeaponName(WeaponHeader.Out)) && (value is DBNull)) | 
+                                    ((table.Columns[col].ColumnName == GetWeaponName(WeaponHeader.PermIssue)) && (value is DBNull)))
                                 {
-                                    worksheet.Cells[row + 2, col + 1].Value = "FALSE"; // Default to false if DBNull
+                                    worksheet.Cells[row + 2, col + 1].Value = strFalse; // Default to false if DBNull
                                 }
                                 else 
                                 {

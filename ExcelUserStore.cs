@@ -8,27 +8,22 @@ namespace ArmourySystem
 {
     public static class ExcelUserStore
     {
-        private readonly static string FilePath = "users.xlsx";
-        private readonly static string ExcelPassword = "password";
-        private readonly static bool encrypt = false; // Set to true if you want to encrypt the Excel file
-
         public static bool Initialize()
         {
             ExcelPackage.License.SetNonCommercialOrganization(PackageAuthor);
 
-            if (!File.Exists(FilePath))
+            if (!File.Exists(UserFilePath))
             {
-                using (var package = new ExcelPackage(new FileInfo(FilePath)))
+                using (var package = new ExcelPackage(new FileInfo(UserFilePath)))
                 {
-                    var sheet = package.Workbook.Worksheets.Add("Users");
+                    var sheet = package.Workbook.Worksheets.Add(WorksheetUsers);
 
                     // Set headers for the user data
-                    sheet.Cells[1, 1].Value = "Username";
-                    sheet.Cells[1, 2].Value = "PasswordHash";
-                    sheet.Cells[1, 3].Value = "Salt";
-                    sheet.Cells[1, 4].Value = "FailedAttempts";
-                    sheet.Cells[1, 5].Value = "LockoutUntil";
-                    sheet.Cells[1, 6].Value = "Role";
+                    var headers = GetAllUserHeaderNames();
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        sheet.Cells[1, i + 1].Value = headers[i];
+                    }
 
                     SaveEncrypted(package);
                     return false; // File was created, so it was empty
@@ -36,9 +31,9 @@ namespace ArmourySystem
             }
             else
             {
-                if (!encrypt) // if the file exists but we do not want encryption open it and save it without encryption
+                if (!UserEncrypt) // if the file exists but we do not want encryption open it and save it without encryption
                 {
-                    using (var package = new ExcelPackage(new FileInfo(FilePath), ExcelPassword))
+                    using (var package = new ExcelPackage(new FileInfo(UserFilePath), UserExcelPassword))
                     {
                         SaveEncrypted(package);
                     }
@@ -50,12 +45,12 @@ namespace ArmourySystem
 
         private static void SaveEncrypted(ExcelPackage package)
         {
-            if (encrypt)
+            if (UserEncrypt)
             {
                 // Enable AES encryption
                 package.Encryption.IsEncrypted = true;
                 package.Encryption.Algorithm = EncryptionAlgorithm.AES256;
-                package.Encryption.Password = ExcelPassword;
+                package.Encryption.Password = UserExcelPassword;
             }
             else
             {
@@ -64,7 +59,7 @@ namespace ArmourySystem
             }
 
             // Save the package to the file
-            package.SaveAs(new FileInfo(FilePath));
+            package.SaveAs(new FileInfo(UserFilePath));
         }
 
         public static void AddUser(string username, string password, string role)
@@ -74,9 +69,9 @@ namespace ArmourySystem
             string salt = CryptoHelper.GenerateSalt();
             string hash = CryptoHelper.HashPasswordWithSalt(password, salt);
 
-            using (var package = new ExcelPackage(new FileInfo(FilePath), ExcelPassword))
+            using (var package = new ExcelPackage(new FileInfo(UserFilePath), UserExcelPassword))
             {
-                var sheet = package.Workbook.Worksheets["Users"];
+                var sheet = package.Workbook.Worksheets[WorksheetUsers];
                 int row = sheet.Dimension.End.Row + 1;
 
                 sheet.Cells[row, 1].Value = username;
@@ -92,9 +87,9 @@ namespace ArmourySystem
 
         public static bool UserExists(string username)
         {
-            using (var package = new ExcelPackage(new FileInfo(FilePath), ExcelPassword))
+            using (var package = new ExcelPackage(new FileInfo(UserFilePath), UserExcelPassword))
             {
-                var sheet = package.Workbook.Worksheets["Users"];
+                var sheet = package.Workbook.Worksheets[WorksheetUsers];
                 var range = sheet.Cells[2, 1, sheet.Dimension.End.Row, 1];
                 return range.Any(cell => cell.GetValue<string>() == username);
             }
@@ -102,9 +97,9 @@ namespace ArmourySystem
 
         public static User GetUser(string username)
         {
-            using (var package = new ExcelPackage(new FileInfo(FilePath), ExcelPassword))
+            using (var package = new ExcelPackage(new FileInfo(UserFilePath), UserExcelPassword))
             {
-                var sheet = package.Workbook.Worksheets["Users"];
+                var sheet = package.Workbook.Worksheets[WorksheetUsers];
                 int rowCount = sheet.Dimension.End.Row;
 
                 for (int row = 2; row <= rowCount; row++)
@@ -124,7 +119,7 @@ namespace ArmourySystem
                             Salt = sheet.Cells[row, 3].Text,
                             FailedAttempts = sheet.Cells[row, 4].GetValue<int>(),
                             LockoutUntil = lockoutUntil,
-                            Role = sheet.Cells[row, 6].Text ?? "User" // Default to "User" if role is not set
+                            Role = sheet.Cells[row, 6].Text ?? DefaultRole // Default to "User" if role is not set
                         };
                     }
                 }
@@ -135,9 +130,9 @@ namespace ArmourySystem
 
         public static void UpdateUser(User user)
         {
-            using (var package = new ExcelPackage(new FileInfo(FilePath), ExcelPassword))
+            using (var package = new ExcelPackage(new FileInfo(UserFilePath), UserExcelPassword))
             {
-                var sheet = package.Workbook.Worksheets["Users"];
+                var sheet = package.Workbook.Worksheets[WorksheetUsers];
                 int rowCount = sheet.Dimension.End.Row;
 
                 for (int row = 2; row <= rowCount; row++)

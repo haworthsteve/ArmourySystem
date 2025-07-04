@@ -143,17 +143,17 @@ namespace ArmourySystem
             e.Graphics.DrawString(headerText, pageHeaderFontB, brush, headerRect);
 
             // Print out the Types from column "Type"
-            headerText = GetValue(GetHeaderName(Header.Type));
+            headerText = GetValue(GetWeaponName(WeaponHeader.Type));
             headerRect = new Rectangle(x, y + 50, 400, 80);
             e.Graphics.DrawString(headerText, pageHeaderFontB, brush, headerRect);
 
             // Print out the Groups from column "Group"
-            headerText = GetValue(GetHeaderName(Header.Group));
+            headerText = GetValue(GetWeaponName(WeaponHeader.Group));
             headerRect = new Rectangle(x, y + 80, 400, 110);
             e.Graphics.DrawString(headerText, pageHeaderFont, brush, headerRect);
 
             // Print out the Ops from column "Op"
-            headerText = GetValue(GetHeaderName(Header.Op));
+            headerText = GetValue(GetWeaponName(WeaponHeader.Op));
             headerRect = new Rectangle(x, y + 100, 400, 130);
             e.Graphics.DrawString(headerText, pageHeaderFont, brush, headerRect);
 
@@ -195,24 +195,24 @@ namespace ArmourySystem
             int[] colWidths = new int[DataTable.Columns.Count];
 
             // set so we skip the columns in rows below
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.Type))] = -1;              // Type column
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.Group))] = -1;             // Group column
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.Op))] = -1;                // Op column
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.ReceiptDate))] = -1;       // Receipt Date column
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.ReceiptVoucher))] = -1;    // Receipt Voucher column
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.IssueDate))] = -1;         // Issue Date column
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.IssueVoucher))] = -1;      // Issue Voucher column
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.PermIssue))] = -1;         // Perm Issue column
-            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.PermName))] = -1;          // Perm Name column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.Type))] = -1;              // Type column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.Group))] = -1;             // Group column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.Op))] = -1;                // Op column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.ReceiptDate))] = -1;       // Receipt Date column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.ReceiptVoucher))] = -1;    // Receipt Voucher column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.IssueDate))] = -1;         // Issue Date column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.IssueVoucher))] = -1;      // Issue Voucher column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.PermIssue))] = -1;         // Perm Issue column
+            colWidths[DataTable.Columns.IndexOf(GetWeaponName(WeaponHeader.PermName))] = -1;          // Perm Name column
 
             // Draw table header once per page and calculate column widths
             for (int col = 0; col < DataTable.Columns.Count; col++)
             {
                 // Skip the "Out" column and any columns that are not needed
-                if (DataTable.Columns[col].ColumnName != GetHeaderName(Header.Out))
+                if (DataTable.Columns[col].ColumnName != GetWeaponName(WeaponHeader.Out))
                 {
                     // This creates a blank space column set to 0 but fixed with will be 10 pixels
-                    if (DataTable.Columns[col].ColumnName == GetHeaderName(Header.Dash))
+                    if (DataTable.Columns[col].ColumnName == GetWeaponName(WeaponHeader.Dash))
                     {
                         colWidths[col] = 0;
                         colPos += 10;

@@ -35,7 +35,7 @@ namespace ArmourySystem
 
             bool exists = ExcelUserStore.Initialize(); // Ensure user store is initialized
             ExcelWeaponStore.Initialize(); // Ensure weapon store is initialized
-            filterColumns = new[] { GetHeaderName(Header.Type), GetHeaderName(Header.Group), GetHeaderName(Header.Op) };
+            filterColumns = new[] { GetWeaponName(WeaponHeader.Type), GetWeaponName(WeaponHeader.Group), GetWeaponName(WeaponHeader.Op) };
             filters = new[] { cboWeapon, cboGroup, cboOp };
 
             if (!exists)
@@ -167,27 +167,27 @@ namespace ArmourySystem
                 // If the user is not an admin, we can disable certain functionalities
                 if (!isAdmin)
                 {
-                    dataGridView.Columns[GetHeaderName(Header.Type)].ReadOnly = true;
-                    dataGridView.Columns[GetHeaderName(Header.Group)].ReadOnly = true;
-                    dataGridView.Columns[GetHeaderName(Header.Op)].ReadOnly = true;
-                    dataGridView.Columns[GetHeaderName(Header.LocalNo)].ReadOnly = true;
-                    dataGridView.Columns[GetHeaderName(Header.SerialNo)].ReadOnly = true;
-                    dataGridView.Columns[GetHeaderName(Header.SightSerialNo)].ReadOnly = true;
-                    dataGridView.Columns[GetHeaderName(Header.Type)].ReadOnly = true;
+                    dataGridView.Columns[GetWeaponName(WeaponHeader.Type)].ReadOnly = true;
+                    dataGridView.Columns[GetWeaponName(WeaponHeader.Group)].ReadOnly = true;
+                    dataGridView.Columns[GetWeaponName(WeaponHeader.Op)].ReadOnly = true;
+                    dataGridView.Columns[GetWeaponName(WeaponHeader.LocalNo)].ReadOnly = true;
+                    dataGridView.Columns[GetWeaponName(WeaponHeader.SerialNo)].ReadOnly = true;
+                    dataGridView.Columns[GetWeaponName(WeaponHeader.SightSerialNo)].ReadOnly = true;
+                    dataGridView.Columns[GetWeaponName(WeaponHeader.Type)].ReadOnly = true;
                 }
 
-                dataGridView.Columns[GetHeaderName(Header.Signature)].ReadOnly = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.Signature)].ReadOnly = true;
 
                 // Freeze columns
-                dataGridView.Columns[GetHeaderName(Header.Type)].Frozen = true;
-                dataGridView.Columns[GetHeaderName(Header.Group)].Frozen = true;
-                dataGridView.Columns[GetHeaderName(Header.Op)].Frozen = true;
-                dataGridView.Columns[GetHeaderName(Header.LocalNo)].Frozen = true;
-                dataGridView.Columns[GetHeaderName(Header.SerialNo)].Frozen = true;
-                dataGridView.Columns[GetHeaderName(Header.SightSerialNo)].Frozen = true;
-                dataGridView.Columns[GetHeaderName(Header.Out)].Frozen = true;
-                dataGridView.Columns[GetHeaderName(Header.PermIssue)].Frozen = true;
-                dataGridView.Columns[GetHeaderName(Header.PermName)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.Type)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.Group)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.Op)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.LocalNo)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.SerialNo)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.SightSerialNo)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.Out)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.PermIssue)].Frozen = true;
+                dataGridView.Columns[GetWeaponName(WeaponHeader.PermName)].Frozen = true;
 
                 _filterHelper = new FilterHelper(
                     excelTable,        // loaded DataTable
