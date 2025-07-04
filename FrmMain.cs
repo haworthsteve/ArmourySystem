@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Windows.Forms;
+using static ArmourySystem.PackageConstants;
 
 
 namespace ArmourySystem
@@ -34,7 +35,7 @@ namespace ArmourySystem
 
             bool exists = ExcelUserStore.Initialize(); // Ensure user store is initialized
             ExcelWeaponStore.Initialize(); // Ensure weapon store is initialized
-            filterColumns = new[] { "Type", "Group", "Op" };
+            filterColumns = new[] { GetHeaderName(Header.Type), GetHeaderName(Header.Group), GetHeaderName(Header.Op) };
             filters = new[] { cboWeapon, cboGroup, cboOp };
 
             if (!exists)
@@ -166,23 +167,27 @@ namespace ArmourySystem
                 // If the user is not an admin, we can disable certain functionalities
                 if (!isAdmin)
                 {
-                    dataGridView.Columns["Type"].ReadOnly = true;
-                    dataGridView.Columns["Group"].ReadOnly = true;
-                    dataGridView.Columns["Op"].ReadOnly = true;
-                    dataGridView.Columns["Local No"].ReadOnly = true;
-                    dataGridView.Columns["Serial No"].ReadOnly = true;
-                    dataGridView.Columns["Sight Serial No"].ReadOnly = true;
+                    dataGridView.Columns[GetHeaderName(Header.Type)].ReadOnly = true;
+                    dataGridView.Columns[GetHeaderName(Header.Group)].ReadOnly = true;
+                    dataGridView.Columns[GetHeaderName(Header.Op)].ReadOnly = true;
+                    dataGridView.Columns[GetHeaderName(Header.LocalNo)].ReadOnly = true;
+                    dataGridView.Columns[GetHeaderName(Header.SerialNo)].ReadOnly = true;
+                    dataGridView.Columns[GetHeaderName(Header.SightSerialNo)].ReadOnly = true;
+                    dataGridView.Columns[GetHeaderName(Header.Type)].ReadOnly = true;
                 }
 
-                dataGridView.Columns["Signature"].ReadOnly = true;
+                dataGridView.Columns[GetHeaderName(Header.Signature)].ReadOnly = true;
 
-                dataGridView.Columns["Type"].Frozen = true;
-                dataGridView.Columns["Group"].Frozen = true;
-                dataGridView.Columns["Op"].Frozen = true;
-                dataGridView.Columns["Local No"].Frozen = true;
-                dataGridView.Columns["Serial No"].Frozen = true;
-                dataGridView.Columns["Sight Serial No"].Frozen = true;
-                dataGridView.Columns["Out"].Frozen = true;
+                // Freeze columns
+                dataGridView.Columns[GetHeaderName(Header.Type)].Frozen = true;
+                dataGridView.Columns[GetHeaderName(Header.Group)].Frozen = true;
+                dataGridView.Columns[GetHeaderName(Header.Op)].Frozen = true;
+                dataGridView.Columns[GetHeaderName(Header.LocalNo)].Frozen = true;
+                dataGridView.Columns[GetHeaderName(Header.SerialNo)].Frozen = true;
+                dataGridView.Columns[GetHeaderName(Header.SightSerialNo)].Frozen = true;
+                dataGridView.Columns[GetHeaderName(Header.Out)].Frozen = true;
+                dataGridView.Columns[GetHeaderName(Header.PermIssue)].Frozen = true;
+                dataGridView.Columns[GetHeaderName(Header.PermName)].Frozen = true;
 
                 _filterHelper = new FilterHelper(
                     excelTable,        // loaded DataTable
@@ -263,7 +268,7 @@ namespace ArmourySystem
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error printing no weapon data:\r\n {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error previewing no weapon data:\r\n {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -395,15 +400,8 @@ namespace ArmourySystem
 
         private void BtnReports_Click(object sender, EventArgs e)
         {
-            try
-            {
-                FrmReports reportsForm = new FrmReports(excelTable, dataGridView);
-                reportsForm.ShowDialog();
-            }
-            catch
-            {
-                // Do nothing here
-            }
+            FrmReports reportsForm = new FrmReports(excelTable, dataGridView);
+            reportsForm.ShowDialog();
         }
 
         private void TxtSearch_KeyPress(object sender, KeyPressEventArgs e)
@@ -422,7 +420,7 @@ namespace ArmourySystem
 
         }
 
-        private void dataGridView_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        private void DataGridView_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
             // Commit the edit if the current cell is dirty, makes the data update immediately to catch changes
             if (dataGridView.IsCurrentCellDirty)
@@ -431,7 +429,7 @@ namespace ArmourySystem
             }
         }
 
-        private void dataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
+        private void DataGridView_UserAddedRow(object sender, DataGridViewRowEventArgs e)
         {
             dataChanged = true; // Set flag to indicate data has changed
         }

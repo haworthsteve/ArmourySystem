@@ -62,7 +62,7 @@
             this.btnClearAllFilters.TabIndex = 24;
             this.btnClearAllFilters.Text = "Clear All";
             this.btnClearAllFilters.UseVisualStyleBackColor = true;
-            this.btnClearAllFilters.Click += new System.EventHandler(this.btnClearAllFilters_Click);
+            this.btnClearAllFilters.Click += new System.EventHandler(this.BtnClearAllFilters_Click);
             // 
             // chkOut
             // 
@@ -142,6 +142,7 @@
             this.btnOODMuster.TabIndex = 25;
             this.btnOODMuster.Text = "OOD Muster";
             this.btnOODMuster.UseVisualStyleBackColor = true;
+            this.btnOODMuster.Click += new System.EventHandler(this.BtnOODMuster_Click);
             // 
             // dataGridViewReports
             // 
@@ -153,7 +154,7 @@
             this.dataGridViewReports.Name = "dataGridViewReports";
             this.dataGridViewReports.Size = new System.Drawing.Size(644, 406);
             this.dataGridViewReports.TabIndex = 26;
-            this.dataGridViewReports.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.dataGridViewReports_KeyPress);
+            this.dataGridViewReports.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.DataGridViewReports_KeyPress);
             // 
             // FrmReports
             // 

@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Windows.Forms;
+using static ArmourySystem.PackageConstants;
 
 namespace ArmourySystem
 {
@@ -142,17 +143,17 @@ namespace ArmourySystem
             e.Graphics.DrawString(headerText, pageHeaderFontB, brush, headerRect);
 
             // Print out the Types from column "Type"
-            headerText = GetValue("Type");
+            headerText = GetValue(GetHeaderName(Header.Type));
             headerRect = new Rectangle(x, y + 50, 400, 80);
             e.Graphics.DrawString(headerText, pageHeaderFontB, brush, headerRect);
 
             // Print out the Groups from column "Group"
-            headerText = GetValue("Group");
+            headerText = GetValue(GetHeaderName(Header.Group));
             headerRect = new Rectangle(x, y + 80, 400, 110);
             e.Graphics.DrawString(headerText, pageHeaderFont, brush, headerRect);
 
             // Print out the Ops from column "Op"
-            headerText = GetValue("Op");
+            headerText = GetValue(GetHeaderName(Header.Op));
             headerRect = new Rectangle(x, y + 100, 400, 130);
             e.Graphics.DrawString(headerText, pageHeaderFont, brush, headerRect);
 
@@ -192,23 +193,26 @@ namespace ArmourySystem
 
             // Create an array to store col widths and set any not to print as -1
             int[] colWidths = new int[DataTable.Columns.Count];
-            // set so we skip in rows below
-            colWidths[0] = -1;  // Type column
-            colWidths[1] = -1;  // Group column
-            colWidths[2] = -1;  // Op column
-            colWidths[16] = -1;  // Receipt Date column
-            colWidths[17] = -1;  // Receipt Voucher column
-            colWidths[18] = -1;  // Issue Date column
-            colWidths[19] = -1;  // Issue Voucher column
+
+            // set so we skip the columns in rows below
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.Type))] = -1;              // Type column
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.Group))] = -1;             // Group column
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.Op))] = -1;                // Op column
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.ReceiptDate))] = -1;       // Receipt Date column
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.ReceiptVoucher))] = -1;    // Receipt Voucher column
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.IssueDate))] = -1;         // Issue Date column
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.IssueVoucher))] = -1;      // Issue Voucher column
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.PermIssue))] = -1;         // Perm Issue column
+            colWidths[DataTable.Columns.IndexOf(GetHeaderName(Header.PermName))] = -1;          // Perm Name column
 
             // Draw table header once per page and calculate column widths
             for (int col = 0; col < DataTable.Columns.Count; col++)
             {
                 // Skip the "Out" column and any columns that are not needed
-                if (DataTable.Columns[col].ColumnName != "Out")
+                if (DataTable.Columns[col].ColumnName != GetHeaderName(Header.Out))
                 {
                     // This creates a blank space column set to 0 but fixed with will be 10 pixels
-                    if (DataTable.Columns[col].ColumnName == "-")
+                    if (DataTable.Columns[col].ColumnName == GetHeaderName(Header.Dash))
                     {
                         colWidths[col] = 0;
                         colPos += 10;

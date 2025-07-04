@@ -9,12 +9,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ProgressBar;
+using static ArmourySystem.PackageConstants;
 
 namespace ArmourySystem
 {
     public partial class FrmReports : Form
     {
-        private FilterHelper filterHelper;
+        private readonly FilterHelper filterHelper;
         private readonly string[] filterColumns;
         private readonly ComboBox[] filters;
         private readonly DataTable excelTable;
@@ -25,7 +27,7 @@ namespace ArmourySystem
             {
                 InitializeComponent();
                 LoadFormSettings();
-                filterColumns = new[] { "Type", "Group", "Op" };
+                filterColumns = new[] { GetHeaderName(Header.Type), GetHeaderName(Header.Group), GetHeaderName(Header.Op) };
                 filters = new[] { cboWeapon, cboGroup, cboOp };
 
                 excelTable = aDataTable;
@@ -107,14 +109,165 @@ namespace ArmourySystem
             Properties.Settings.Default.Save();
         }
 
-        private void btnClearAllFilters_Click(object sender, EventArgs e)
+        private void BtnClearAllFilters_Click(object sender, EventArgs e)
         {
             filterHelper.ClearAllFilters();
         }
 
-        private void dataGridViewReports_KeyPress(object sender, KeyPressEventArgs e)
+        private void DataGridViewReports_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = true; // Prevent beep
+        }
+
+        public class PermOutSummary
+        {
+            public string RecipientName { get; set; }
+            public int Count { get; set; }
+        }
+
+        public class WeaponSummary
+        {
+            public string Type { get; set; }
+            public int TotalCount { get; set; }
+            public int OutCount { get; set; }
+            public List<PermOutSummary> PermOutRecipients { get; set; }
+        }
+
+        
+        private void BtnOODMuster_Click(object sender, EventArgs e)
+        {
+            var weaponSummaries = excelTable.AsEnumerable()
+                .Where(row => !string.IsNullOrWhiteSpace(row.Field<string>(GetHeaderName(Header.Type))))
+                .GroupBy(row => row.Field<string>(GetHeaderName(Header.Type)))
+                .Select(group =>
+            {
+                var type = group.Key;
+                var totalCount = group.Count();
+                var outCount = group.Count(r => r.Field<bool>(GetHeaderName(Header.Out)));
+
+            // Find all PERM outs for this type
+            var permOuts = group
+                .Where(r => r.Field<bool>(GetHeaderName(Header.Out)) == true &&
+                            r.Field<bool>(GetHeaderName(Header.PermIssue)) == true)
+                .GroupBy(r => r.Field<string>(GetHeaderName(Header.PermName))?.Trim())
+                .Select(g => new PermOutSummary
+                {
+                    RecipientName = string.IsNullOrWhiteSpace(g.Key) ? "(No Recipient)" : g.Key,
+                    Count = g.Count()
+                })
+                .OrderBy(p => p.RecipientName)
+                .ToList();
+
+                return new WeaponSummary
+                {
+                    Type = type,
+                    TotalCount = totalCount,
+                    OutCount = outCount,
+                    PermOutRecipients = permOuts
+                 };
+            })
+            .OrderByDescending(ws => ws.TotalCount)
+            .ToList();
+
+            // TODO: Formulate the printed page
+
+            /*
+            // Start by counting all the weapon in Type column    
+            var weaponStats = excelTable.AsEnumerable()
+                .Where(row => !string.IsNullOrWhiteSpace(row.Field<string>("Type")))
+                .GroupBy(row => row.Field<string>("Type"))
+                .Select(group => new
+                {
+                    Type = group.Key,
+                    Count = group.Count(),
+                    OutCount = group.Count(row => row.Field<bool>("Out"))
+                })
+                .OrderByDescending(x => x.Count)
+                .ToList();
+
+            var permByTypeAndRecipient = excelTable.AsEnumerable()
+                .Where(row =>
+                    row.Field<bool?>("Out") == true &&
+                    row.Field<string>("Date of Return")?.Trim().ToUpper() == "PERM")
+                .GroupBy(row => new
+                {
+                    Type = row.Field<string>("Type")?.Trim(),
+                    Recipient = row.Field<string>("Name of Recipient")?.Trim()
+                })
+                .GroupBy(g => g.Key.Type)
+                .OrderBy(g => g.Key) // optional: sort by type
+                .ToList();
+
+            /*
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("PERM Weapons by Type and Recipient:");
+            sb.AppendLine("------------------------------------");
+
+            foreach (var typeGroup in permByTypeAndRecipient)
+            {
+                sb.AppendLine($"{typeGroup.Key}:");
+
+                foreach (var recipientGroup in typeGroup)
+                {
+                    string recipientName = string.IsNullOrWhiteSpace(recipientGroup.Key.Recipient)
+                        ? "(No Recipient)"
+                        : recipientGroup.Key.Recipient;
+
+                    int count = recipientGroup.Count(); // Corrected: Count the number of rows in this group
+                    sb.AppendLine($"  - {recipientName}: {count}");
+                }
+            }
+
+            MessageBox.Show(sb.ToString(), "PERM Weapons by Type and Recipient", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            */
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Weapon Type Summary:");
+            sb.AppendLine("------------------------");
+
+            /*
+            foreach (var weapon in weaponStats)
+            {
+                sb.AppendLine($"{weapon.Type}: Count = {weapon.Count}, Out = {weapon.OutCount}");
+
+                foreach (var typeGroup in permByTypeAndRecipient)
+                {
+                    if (typeGroup.Key == weapon.Type)
+                    {
+                        foreach (var recipientGroup in typeGroup)
+                        {
+                            string recipientName = string.IsNullOrWhiteSpace(recipientGroup.Key.Recipient)
+                                ? "(No Recipient)"
+                                : recipientGroup.Key.Recipient;
+
+                            int count = recipientGroup.Count(); // Corrected: Count the number of rows in this group
+                            sb.AppendLine($"  - {recipientName}: {count}");
+                        }
+                    }
+                }
+            }
+            */
+
+            foreach (var weapon in weaponSummaries)
+            {
+                string permRecipientsStr = "";
+                
+                foreach (PermOutSummary permRecipient in weapon.PermOutRecipients)
+                {
+                    permRecipientsStr += permRecipient.RecipientName + "(" + permRecipient.Count + ")  "; 
+                }
+
+                if (permRecipientsStr.Length == 0)
+                {
+                    sb.AppendLine($"{weapon.Type}: Count = {weapon.TotalCount}, Out = {weapon.OutCount}");
+                }
+                else
+                {
+                    sb.AppendLine($"{weapon.Type}: Count = {weapon.TotalCount}, Out = {weapon.OutCount}, PERM - {permRecipientsStr}");
+                }
+            }
+
+            MessageBox.Show(sb.ToString(), "Weapon Type Summary", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

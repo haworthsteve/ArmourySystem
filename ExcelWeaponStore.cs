@@ -4,6 +4,8 @@ using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
+using System.Xml.Linq;
+using static ArmourySystem.PackageConstants;
 
 namespace ArmourySystem
 {
@@ -16,7 +18,7 @@ namespace ArmourySystem
 
         public static bool Initialize()
         {
-            ExcelPackage.License.SetNonCommercialOrganization("Steve Haworth");
+            ExcelPackage.License.SetNonCommercialOrganization(PackageAuthor);
 
             if (!File.Exists(FilePath))
             {
@@ -24,12 +26,12 @@ namespace ArmourySystem
                 {
                     var sheet = package.Workbook.Worksheets.Add(SheetName);
 
-                    // Set headers for the user data
-                    sheet.Cells[1, 1].Value = "Type";
-                    sheet.Cells[1, 2].Value = "Local No";
-                    sheet.Cells[1, 3].Value = "Serial No";
-                    sheet.Cells[1, 4].Value = "Sight Serial No";
-                    sheet.Cells[1, 5].Value = "Out";
+                    // Set headers for the weapon data
+                    var headers = GetAllHeaderNames();
+                    for (int i = 0; i < headers.Length; i++)
+                    {
+                        sheet.Cells[1, i + 1].Value = headers[i];
+                    }
 
                     SaveEncrypted(package);
                     return false; // File was created, so it was empty
@@ -83,11 +85,10 @@ namespace ArmourySystem
                 for (int col = 1; col <= colCount; col++)
                 {
                     var colName = hasHeader ? worksheet.Cells[1, col].Text : $"Column{col}";
-                    if (colName == "Out")  // 👈 Target boolean column
+                    if ((colName == GetHeaderName(Header.Out)) || (colName == GetHeaderName(Header.PermIssue)))  // comparison using GetHeaderName
                         dt.Columns.Add(colName, typeof(bool));
                     else
                         dt.Columns.Add(colName);
-
                 }
 
                 int startRow = hasHeader ? 2 : 1;
@@ -98,10 +99,9 @@ namespace ArmourySystem
                     {
                         var cellText = worksheet.Cells[row, col].Text;
 
-                        // 👇 If column is boolean, parse it
+                        // If column is boolean, parse it
                         if (dt.Columns[col - 1].DataType == typeof(bool))
                         {
-                            // Replace the problematic code with the following:
                             newRow[col - 1] = ParseBoolean(cellText);
                         }
                         else
@@ -138,7 +138,7 @@ namespace ArmourySystem
                             var value = table.Rows[row][col];
 
                             // Handle specific columns
-                            if (table.Columns[col].ColumnName == "Signature")
+                            if (table.Columns[col].ColumnName == GetHeaderName(Header.Signature))
                             {
                                 worksheet.Cells[row + 2, col + 1].Value = "XXXXXXXXXXXXXX"; // Set Signature box spreader value
                                 continue;
@@ -152,7 +152,8 @@ namespace ArmourySystem
                             else
                             {
                                 // Handle DBNull values for the "Out" column
-                                if ((table.Columns[col].ColumnName == "Out") && (value is DBNull))
+                                if (((table.Columns[col].ColumnName == GetHeaderName(Header.Out)) && (value is DBNull)) | 
+                                    ((table.Columns[col].ColumnName == GetHeaderName(Header.PermIssue)) && (value is DBNull)))
                                 {
                                     worksheet.Cells[row + 2, col + 1].Value = "FALSE"; // Default to false if DBNull
                                 }

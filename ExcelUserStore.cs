@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using static ArmourySystem.PackageConstants;
 
 namespace ArmourySystem
 {
@@ -13,8 +14,7 @@ namespace ArmourySystem
 
         public static bool Initialize()
         {
-            //ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-            ExcelPackage.License.SetNonCommercialOrganization("Steve Haworth");
+            ExcelPackage.License.SetNonCommercialOrganization(PackageAuthor);
 
             if (!File.Exists(FilePath))
             {
